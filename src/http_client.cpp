@@ -16,6 +16,7 @@ namespace botnet {
             WSADATA wsaData;
             SOCKET Socket;
             std::string requisition;
+            std::string str_method;
             int nrecv = 0;
             char buffer[BUFFER_LEN];
 
@@ -35,9 +36,14 @@ namespace botnet {
             SockAddr.sin_addr.s_addr = *((unsigned long*)host->h_addr);
 
             connect(Socket, (SOCKADDR*)(&SockAddr), sizeof(SockAddr));
-            requisition = req.getMethod + req.getPath + "HTTP/1.1\r\n\r\n";
+            if (req.getMethod() == method::GET)
+                str_method = "GET";
+            else if (req.getMethod() == method::POST)
+                str_method = "POST";
+
+            requisition = str_method + req.getPath() + "HTTP/1.1\r\n\r\n";
+            requisition += req.getHeaders().getAll();
             send(Socket, requisition.c_str(), requisition.length(), 0);
-            char buffer[100000];
 
             do {
                 nrecv = recv(Socket, buffer, BUFFER_LEN, 0);

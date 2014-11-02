@@ -1,33 +1,25 @@
+#ifndef BOTNET_HTTP_REQ_H_
+#define BOTNET_HTTP_REQ_H_
+
 #include <iostream>
 #include <string>
 #include <list>
 
 namespace botnet {
     namespace http {
-        enum class method {
+        enum method {
             GET,
             POST
         };
 
         class http_request {
         public:
-            http_request(method m) :_m(m)
-            {}
-
-            method getMethod() const {
-                return this->_m;
-            }
-
-            void setPath(std::string path) {
-                _path = path;
-            }
-
-            std::string getPath() const {
-                return _path;
-            }
-
             class headers {
             public:
+                headers& operator=(const headers& other) {
+                    _head = other._head;
+                }
+
                 void add(std::string key, std::string value) {
                     line_h l;
                     l.key = key;
@@ -51,9 +43,37 @@ namespace botnet {
 
                 std::list<line_h> _head;
             };
+
+            http_request(method m) :_m(m)
+            {}
+
+            method getMethod() const {
+                return this->_m;
+            }
+
+            void setPath(std::string path) {
+                _path = path;
+            }
+
+            std::string getPath() const {
+                return _path;
+            }
+
+            void setHeaders(headers h) {
+                _h = h;
+            }
+
+            headers getHeaders() const {
+                headers h = _h;
+                return h;
+            }
+
         private:
             method _m;
+            headers _h;
             std::string _path;
         };
     }
 }
+
+#endif  // BOTNET_HTTP_REQ_H_
