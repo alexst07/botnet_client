@@ -12,13 +12,13 @@ namespace botnet {
 
 #define BUFFER_LEN  1000
 
-        bool http_client::request(http_request req) {
+        bool http_client::request(http_request *req) {
             WSADATA wsaData;
             SOCKET Socket;
             std::string requisition;
             std::string str_method;
             int nrecv = 0;
-            char buffer[BUFFER_LEN];
+            char buffer[BUFFER_LEN + 1];
 
             _code = "";
 
@@ -36,13 +36,14 @@ namespace botnet {
             SockAddr.sin_addr.s_addr = *((unsigned long*)host->h_addr);
 
             connect(Socket, (SOCKADDR*)(&SockAddr), sizeof(SockAddr));
-            if (req.getMethod() == method::GET)
+            if (req->getMethod() == method::GET)
                 str_method = "GET";
-            else if (req.getMethod() == method::POST)
+            else if (req->getMethod() == method::POST)
                 str_method = "POST";
 
-            requisition = str_method + req.getPath() + "HTTP/1.1\r\n\r\n";
-            requisition += req.getHeaders().getAll();
+            requisition = str_method + " " + req->getPath() + " HTTP/1.1\r\n";
+            requisition += req->getHeaders().getAll();
+            std::cout << "Requisition: " << requisition;
             send(Socket, requisition.c_str(), requisition.length(), 0);
 
             do {
@@ -50,8 +51,11 @@ namespace botnet {
                 if (nrecv == SOCKET_ERROR)
                     return false;
                 
-                if (nrecv > 0)
+                if (nrecv > 0) {
+                    buffer[nrecv] = '\0';
                     _code += buffer;
+                }
+
             } while (nrecv > 0);
             
             closesocket(Socket);

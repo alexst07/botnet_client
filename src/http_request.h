@@ -18,6 +18,7 @@ namespace botnet {
             public:
                 headers& operator=(const headers& other) {
                     _head = other._head;
+                    return *this;
                 }
 
                 void add(std::string key, std::string value) {
@@ -29,9 +30,9 @@ namespace botnet {
                 std::string getAll() {
                     std::string str_head = std::string("");
                     for (auto const &l : _head) {
-                        str_head += l.key + ":" + l.value + "\n\r";
+                        str_head += l.key + ": " + l.value + "\r\n";
                     }
-                    str_head += "\n\r";
+                    str_head += "\r\n";
                     return str_head;
                 }
 
@@ -45,13 +46,15 @@ namespace botnet {
             };
 
             http_request(method m) :_m(m)
-            {}
+            {
+                _path = "/";
+            }
 
             method getMethod() const {
                 return this->_m;
             }
 
-            void setPath(std::string path) {
+            void setPath(std::string &path) {
                 _path = path;
             }
 
@@ -59,7 +62,7 @@ namespace botnet {
                 return _path;
             }
 
-            void setHeaders(headers h) {
+            void setHeaders(headers &h) {
                 _h = h;
             }
 

