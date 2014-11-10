@@ -43,7 +43,7 @@ namespace botnet {
 
             requisition = str_method + " " + req->getPath() + " HTTP/1.1\r\n";
             requisition += req->getHeaders().getAll();
-            std::cout << "Requisition: " << requisition;
+
             send(Socket, requisition.c_str(), requisition.length(), 0);
 
             do {

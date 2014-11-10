@@ -1,3 +1,6 @@
+#ifndef BOTNET_HTTP_CLIENT_H_
+#define BOTNET_HTTP_CLIENT_H_
+
 #include <iostream>
 #include <string>
 
@@ -21,3 +24,5 @@ namespace botnet {
         };
     }
 }
+
+#endif  // BOTNET_HTTP_CLIENT_H_
