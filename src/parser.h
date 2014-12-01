@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include "utils.h"
 
 namespace botnet {
     typedef int(*command)(std::string p);
@@ -19,7 +20,6 @@ namespace botnet {
     class parser {
         std::string src_;
         cmd_map funcs_;
-        std::vector<std::string> split(std::string str, std::string sep);
     public:
         parser(std::string src);
         void execute();

