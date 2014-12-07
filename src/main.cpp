@@ -2,6 +2,7 @@
 #include "http_client.h"
 #include "http_request.h"
 #include "parser.h"
+#include "utils.h"
 
 int main() {
     typedef botnet::http::http_request http_request;
@@ -9,6 +10,8 @@ int main() {
     typedef botnet::parser parser;
     std::string cmds;
     parser *pcmd;
+
+    std::cout << "Program name: " << botnet::my_name() << '\n';
 
     http_request *http_req = new http_request(botnet::http::GET);
     http_request::headers header;
