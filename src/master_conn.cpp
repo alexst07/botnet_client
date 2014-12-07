@@ -32,10 +32,10 @@ namespace botnet{
 		int index;
 	    for (i = 0; i < n/2; i++){
 			exp_key = exp_key
-		               + ALPHA[((int)str_key[i] + (int)str_key.[i+1]) % ALPHA_SIZE]
-		               + ALPHA[(((int)str_key[i]) * 6((int)str_key[n-i-1])) % ALPHA_SIZE];
+		               + ALPHA[((int)str_key[i] + (int)str_key[i+1]) % ALPHA_SIZE]
+		               + ALPHA[(((int)str_key[i]) * ((int)str_key[n-i-1])) % ALPHA_SIZE];
 		}
-	    for (var i = 0; i < n; i++){
+	    for (i = 0; i < n; i++){
 			index = (((int)ALPHA[((int)str_key[i]) % ALPHA_SIZE]) + i*i ) % ALPHA_SIZE;
 			exp_key = exp_key + ALPHA[index];
 		}
