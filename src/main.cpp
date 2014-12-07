@@ -3,6 +3,7 @@
 #include "http_request.h"
 #include "parser.h"
 #include "utils.h"
+#include "define.h"
 
 int main() {
     typedef botnet::http::http_request http_request;
@@ -15,10 +16,11 @@ int main() {
 
     http_request *http_req = new http_request(botnet::http::GET);
     http_request::headers header;
-    header.add("Host", "localhost:5000");
+    std::string host = HOST + ':' + std::to_string(PORT);
+    header.add("Host", host);
     http_req->setHeaders(header);
 
-    http_client *http_c = new http_client("localhost", 5000);
+    http_client *http_c = new http_client(HOST, PORT);
     http_c->request(http_req);
 
 	std::cout << http_c->getContent() << '\n';

