@@ -14,13 +14,12 @@ namespace botnet {
         int confirm_msg;
 
         std::string client_key_gen();
-        std::string confirm();
+        bool confirm(std::string msg_from_server);
         std::string expand_key(std::string str_key);
         std::string combineKeys(int keyServer);
     public:
         master_conn();
         
-
         int keyGen();
         void setKeyServer(int key);
         std::string encrypt(std::string str);

