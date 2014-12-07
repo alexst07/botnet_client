@@ -9,10 +9,14 @@ namespace botnet {
         std::string client_id;
         int client_key;
         std::string hash_key;
+        int my_rand;
+        int count_conn;
+        int confirm_msg;
 
         std::string client_key_gen();
         std::string confirm();
         std::string expand_key(std::string str_key);
+        std::string combineKeys(int keyServer);
     public:
         master_conn();
         
