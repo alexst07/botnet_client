@@ -42,4 +42,40 @@ namespace botnet{
 		return exp_key;
 	}
 
+	int master_conn::combineKeys(int keyServer){
+		return expand_key(keyServer ^ myRand);
+	}
+
+	std::string master_conn::encrypt(std::string m){
+		int i;
+		int j = 0;
+		std::string c = "";
+        int iv =  ==== myCount ==== /* this.count */;
+		std::string k =  ===== hashKey ==== /* this.hash_key */;
+		for (i = 0; i < m.length(); i++){
+	    	c = c + ((char)(iv ^ m[i] ^ k.[j]));
+			j = (j + 1) % k.length();
+			if (j == 0)
+				iv = (iv + 1) % 256;
+		}
+		return c;
+	}
+	
+	std::string master_conn::decrypt (std::string c){
+		int j = 0;
+		int i;
+		std::string m = "";
+        int iv = ===== myCount ===== /* this.count numero de conexoes */;
+        std::string k = ===== hashKey ===== /* this.expanded_private_key*/;
+		for (i = 0; i < c.length; i++){
+			m = m + String.fromCharCode(iv ^ c[i] ^ k[j]);
+            j = (j + 1) % k.length;
+	        if (j == 0)
+	        	iv = (iv + 1) % 256;
+		}
+		return m;
+	}
+
+
+
 }
