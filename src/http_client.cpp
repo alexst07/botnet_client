@@ -26,6 +26,8 @@ namespace botnet {
             int content_length = 0;
             std::vector<std::string> arr;
             bool get_header = false;
+            DWORD dwError;
+            struct in_addr addr = { 0 };
             _code = "";
 
             if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
@@ -34,8 +36,15 @@ namespace botnet {
             Socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
             struct hostent *host;
-            host = gethostbyaddr(_url.c_str(), 16, AF_INET6);
-            //host = gethostbyname(_url.c_str());
+            /*addr.s_addr = inet_addr(_url.c_str());
+            if (addr.s_addr == INADDR_NONE)
+                return false;*/
+
+            /*host = gethostbyaddr((char *)&addr, 4, AF_INET);*/
+            host = gethostbyname(_url.c_str());
+            dwError = WSAGetLastError();
+            if (host == NULL)
+                return false;
 
             SOCKADDR_IN SockAddr;
             SockAddr.sin_port = htons(_port);
@@ -48,7 +57,7 @@ namespace botnet {
             else if (req->getMethod() == method::POST)
                 str_method = "POST";
 
-            requisition = str_method + " " + req->getPath() + " HTTP/1.1\r\n";
+            requisition = str_method + " /" + req->getPath() + " HTTP/1.1\r\n";
             requisition += req->getHeaders().getAll();
 
             send(Socket, requisition.c_str(), requisition.length(), 0);
@@ -86,8 +95,10 @@ namespace botnet {
                         }
                     }
 
-                    if (nrecv >= (body_start + 4 + content_length))
+                    if (nrecv >= (body_start + 4 + content_length)) {
+                        _body = _code.substr(body_start + 4);
                         break;
+                    }
                         
                 }
 

