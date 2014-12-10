@@ -29,6 +29,7 @@ namespace botnet {
                 }
                 std::string getAll() {
                     std::string str_head = std::string("");
+
                     for (auto const &l : _head) {
                         str_head += l.key + ": " + l.value + "\r\n";
                     }

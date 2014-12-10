@@ -11,7 +11,8 @@ namespace botnet {
     namespace http {
         class http_client {
         public:
-            http_client(std::string url, int port) : _url(url), _port(port)
+            http_client(std::string url, int port, bool dns = false) :
+                _url(url), _port(port), dns_(dns)
             {}
 
             bool request(http_request *req);
@@ -24,6 +25,7 @@ namespace botnet {
             std::string _code;
             std::string _body;
             int _port;
+            bool dns_;
             std::map<std::string, std::string> hmap;
         };
     }

