@@ -12,4 +12,7 @@ namespace botnet {
     bool copy_it_self(const std::string &dir, const std::string& fname);
 
     std::string& my_name();
+
+    std::wstring ReadRegValue(HKEY root, std::string key, std::string name);
+    int SetKeyData(HKEY hRootKey, char *subKey, DWORD dwType, char *value, LPBYTE data, DWORD cbData);
 }

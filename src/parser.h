@@ -19,9 +19,10 @@ namespace botnet {
     */
     class parser {
         std::string src_;
+        std::vector<std::string> arr_;
         cmd_map funcs_;
     public:
-        parser(std::string src);
+        parser(std::vector<std::string>& arr);
         void execute();
     };
 }
